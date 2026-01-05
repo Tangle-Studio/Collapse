@@ -38,6 +38,23 @@
 
 ---
 
+## 📜 최신 관측 로그 (Archive)
+
+*최근 관측된 이야기 조각들입니다. 터미널 접속 없이도 데이터 로그를 직접 열람할 수 있습니다.*
+
+<!-- CONTENT_INDEX_START -->
+
+- [침묵의 연대기](src/content/atom_001.md)
+- [관측된 데이터](src/content/atom_002.md)
+- [루프의 균열](src/content/atom_003.md)
+- [산소의 기억](src/content/atom_004.md)
+- [주방의 유령](src/content/atom_005.md)
+- [양자 메아리](src/content/atom_006.md)
+
+<!-- CONTENT_INDEX_END -->
+
+---
+
 ## 🤝 공동 창작 안내 (Contribution)
 
 이 우주는 끊임없이 팽창합니다. 독자 여러분의 참여를 기다립니다.
