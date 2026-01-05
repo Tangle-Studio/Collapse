@@ -1,0 +1,17 @@
+---
+id: atom_004
+title: 산소의 기억
+tags:
+  - mars
+  - memory
+  - oxygen
+entanglement_points:
+  - key: reality_coherence
+    effect: "+0.2"
+    on: meditation
+  - key: memory_sync
+    effect: "+0.3"
+    on: inhale
+---
+
+화성의 공기는 차갑고 희박하지만, 당신의 폐는 여전히 지구의 숲속 향기를 기억합니다. 그 기억이 당신의 산소 잔량을 늘려줄까요, 아니면 절망을 깊게 할까요?
