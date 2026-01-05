@@ -3,7 +3,6 @@ param (
     [switch]$PushOnly
 )
 
-$PublicRepoUrl = "https://github.com/redsunjin/Collapse.git"
 $PublishBranch = "publish"
 $SourceBranch = "develop"
 
