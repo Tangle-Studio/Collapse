@@ -32,7 +32,15 @@
 - **Issues as Observation**: 특정 스토리 구간의 의문점이나 관측 결과를 Issue로 등록하여, QSM(AI)이 이에 응답하거나 다음 챕터에 반영하게 함.
 - **Releases/Tags**: 이야기의 큰 전환점을 '버전'으로 배포하여 사용자가 과거의 현실로 돌아가거나 새로운 도약(Leap)을 하는 경험 제공.
 
-### 5. Marketing Strategy
+### 5. Dual-Branch Security Strategy (이원화 보안 전략)
+소스코드 보안과 독자 경험 분리를 위해 다음과 같이 브랜치를 운용합니다.
+- **`develop` (비공개 권장)**: 모든 개발 소스(`src`), 정책(`.agent`), 기술 문서(`SPEC.md`, `ROADMAP.md`)를 포함하는 작업 브랜치.
+- **`main` (공개 배포)**: 오직 '소설 독자'를 위한 브랜치. 
+  - **포함 항목**: 실행용 파일(`index.html`, `style.css`, `engine.js`, `story_data.js`), 공개용 `README.md`, 독자 매뉴얼(`MANUAL.md`).
+  - **제외 항목**: `.agent`, `src`, `SPEC.md`, `ROADMAP.md`, `task.md` 등 개발 관련 모든 내부 데이터.
+- **자동화**: `develop`에서 검증이 완료된 스토리만 `main`으로 머지(Merge)하거나, 배포용 빌드 결과물만 푸시하는 워크플로우를 권장합니다.
+
+### 6. Marketing Strategy
 - **Interactive Demos**: Release a "Quantum Prologue" as a free, sharable link.
 - **Cross-Linking**: Structure Reddit posts as a "Nebula of Stories" where each post links to multiple potential futures, enticing readers to explore the web version for the "Real-time Collapse" effect.
 - **Visual Teasers**: Create GIFs/Shorts showing the "collapse" animation and the glassmorphism UI to showcase the premium quality.

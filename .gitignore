@@ -1,0 +1,11 @@
+# Quantum Narratives - Git Ignore Strategy (Develop)
+
+# System/OS Files
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Only ignore ephemeral AI brain/data
+.gemini/
+brain/
+*.log
