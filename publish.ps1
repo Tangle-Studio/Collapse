@@ -16,10 +16,18 @@ New-Item -ItemType Directory -Path $TempDir | Out-Null
 
 # 3. Copy only Sanitized Files from current branch (develop)
 Write-Host "[1/4] 공개 가능한 파일들만 선별 복사 중..." -ForegroundColor Green
-$PublicFiles = "index.html", "style.css", "engine.js", "story_data.js", "MANUAL.md", ".gitignore"
+$PublicFiles = "index.html", "style.css", "engine.js", "story_data.js", "MANUAL.md", ".gitignore", "src/content"
 
 foreach ($file in $PublicFiles) {
-    if (Test-Path $file) { Copy-Item $file $TempDir }
+    if (Test-Path $file) {
+        $dest = Join-Path $TempDir $file
+        if (Test-Path $file -PathType Container) {
+            Copy-Item -Path $file -Destination $TempDir -Recurse -Force
+        }
+        else {
+            Copy-Item -Path $file -Destination $TempDir -Force
+        }
+    }
 }
 
 # Special README Handling (Reader-centric)
