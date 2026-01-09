@@ -174,13 +174,27 @@ class QuantumMap {
         this.onClick = null;
         this.onDelete = null;
 
+        this.pressTimer = null;
+
         this.resize();
         window.addEventListener('resize', () => this.resize());
+
+        // Mouse Events
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.canvas.addEventListener('mouseup', () => clearTimeout(this.pressTimer));
         this.canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            this.handleMouseDown(e, true);
+            this.handleNodeAction(e, true);
         });
+
+        // Touch Events (Mobile/Tablet)
+        this.canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            this.pressTimer = setTimeout(() => {
+                this.handleNodeAction(touch, true); // Long press = Delete
+            }, 800);
+        });
+        this.canvas.addEventListener('touchend', () => clearTimeout(this.pressTimer));
     }
 
     resize() {
@@ -188,18 +202,26 @@ class QuantumMap {
         this.canvas.height = window.innerHeight;
     }
 
-    handleMouseDown(e, isRightClick = false) {
+    handleMouseDown(e) {
+        if (e.button === 2) return; // Handle right click in contextmenu listener
+        this.handleNodeAction(e, e.ctrlKey);
+    }
+
+    handleNodeAction(e, isDeleteAction) {
         const rect = this.canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+        const mouseX = clientX - rect.left;
+        const mouseY = clientY - rect.top;
 
         const clickedNode = this.nodes.find(node => {
             const dist = Math.sqrt((node.x - mouseX) ** 2 + (node.y - mouseY) ** 2);
-            return dist < this.nodeRadius + 10;
+            return dist < this.nodeRadius + 20; // Increased hit area
         });
 
         if (clickedNode) {
-            if (isRightClick || e.ctrlKey) {
+            if (isDeleteAction) {
                 if (this.onDelete) this.onDelete(clickedNode.id);
             } else {
                 if (this.onClick) this.onClick(clickedNode.id);
