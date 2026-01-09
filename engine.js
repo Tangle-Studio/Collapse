@@ -136,9 +136,23 @@ class QuantumNarrativeEngine {
     toggleMap(show) {
         if (show) {
             this.mapOverlay.classList.remove('hidden');
-            this.quantumMap.render(this.history);
+            this.quantumMap.render(this.history, (id) => this.handleMapClick(id), (id) => this.handleMapDelete(id));
         } else {
             this.mapOverlay.classList.add('hidden');
+        }
+    }
+
+    handleMapClick(nodeId) {
+        this.toggleMap(false);
+        this.loadNode(nodeId);
+    }
+
+    handleMapDelete(nodeId) {
+        if (confirm(`'${nodeId}' 지점의 엔탕글먼트를 절단하시겠습니까? 이력에서 삭제됩니다.`)) {
+            this.history = this.history.filter(id => id !== nodeId);
+            this.observedAtoms.delete(nodeId);
+            this.saveState();
+            this.toggleMap(true); // Re-render map
         }
     }
 
@@ -155,8 +169,18 @@ class QuantumMap {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.data = storyData;
+        this.nodeRadius = 15;
+        this.nodes = [];
+        this.onClick = null;
+        this.onDelete = null;
+
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.handleMouseDown(e, true);
+        });
     }
 
     resize() {
@@ -164,48 +188,67 @@ class QuantumMap {
         this.canvas.height = window.innerHeight;
     }
 
-    render(history) {
+    handleMouseDown(e, isRightClick = false) {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const clickedNode = this.nodes.find(node => {
+            const dist = Math.sqrt((node.x - mouseX) ** 2 + (node.y - mouseY) ** 2);
+            return dist < this.nodeRadius + 10;
+        });
+
+        if (clickedNode) {
+            if (isRightClick || e.ctrlKey) {
+                if (this.onDelete) this.onDelete(clickedNode.id);
+            } else {
+                if (this.onClick) this.onClick(clickedNode.id);
+            }
+        }
+    }
+
+    render(history, onClick, onDelete) {
+        this.onClick = onClick;
+        this.onDelete = onDelete;
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (history.length === 0) return;
 
         // Create organic node positions base on history index and id
-        const nodes = history.map((id, i) => {
-            // Seeded random for consistent layout of the same history
+        this.nodes = history.map((id, i) => {
             const seed = id.split('_')[1] || i;
-            const jitterX = (Math.sin(seed * 0.5) * 100);
-            const jitterY = (Math.cos(seed * 0.5) * 100);
+            const jitterX = (Math.sin(seed * 0.5) * 150);
+            const jitterY = (Math.cos(seed * 0.5) * 150);
 
             return {
                 id,
-                x: (this.canvas.width / 2) + jitterX + (Math.sin(i) * (i * 10)),
-                y: (this.canvas.height / 2) + jitterY + (Math.cos(i) * (i * 10)),
+                x: (this.canvas.width / 2) + jitterX + (Math.sin(i) * (i * 15)),
+                y: (this.canvas.height / 2) + jitterY + (Math.cos(i) * (i * 15)),
                 title: this.data[id] ? this.data[id].title : id
             };
         });
 
-        // Draw connections with gradient/pulse
+        // Draw connections
         ctx.lineWidth = 1;
-        for (let i = 0; i < nodes.length - 1; i++) {
-            const grad = ctx.createLinearGradient(nodes[i].x, nodes[i].y, nodes[i + 1].x, nodes[i + 1].y);
+        for (let i = 0; i < this.nodes.length - 1; i++) {
+            const grad = ctx.createLinearGradient(this.nodes[i].x, this.nodes[i].y, this.nodes[i + 1].x, this.nodes[i + 1].y);
             grad.addColorStop(0, 'rgba(0, 242, 255, 0.4)');
             grad.addColorStop(1, 'rgba(255, 0, 255, 0.4)');
 
             ctx.beginPath();
             ctx.strokeStyle = grad;
-            ctx.setLineDash([5, 5]); // Glitchy dashed line
-            ctx.moveTo(nodes[i].x, nodes[i].y);
-            ctx.lineTo(nodes[i + 1].x, nodes[i + 1].y);
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(this.nodes[i].x, this.nodes[i].y);
+            ctx.lineTo(this.nodes[i + 1].x, this.nodes[i + 1].y);
             ctx.stroke();
             ctx.setLineDash([]);
         }
 
-        // Draw nodes with "Quantum Core" effect
-        nodes.forEach((node, i) => {
-            const isLast = i === nodes.length - 1;
+        // Draw nodes
+        this.nodes.forEach((node, i) => {
+            const isLast = i === this.nodes.length - 1;
 
-            // Draw core
             ctx.shadowBlur = isLast ? 30 : 10;
             ctx.shadowColor = isLast ? '#ff00ff' : 'var(--accent-color)';
 
@@ -214,7 +257,6 @@ class QuantumMap {
             ctx.arc(node.x, node.y, isLast ? 8 : 5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw orbit ring for last node
             if (isLast) {
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 1;
@@ -228,6 +270,10 @@ class QuantumMap {
             ctx.font = '700 10px Inter';
             ctx.textAlign = 'center';
             ctx.fillText(node.title, node.x, node.y + 25);
+            if (isLast) {
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.5)';
+                ctx.fillText("(L-CLICK: OBSERVE | R-CLICK: CUT)", node.x, node.y + 38);
+            }
         });
     }
 }
