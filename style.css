@@ -387,5 +387,15 @@ footer {
     display: flex;
     gap: 15px;
     margin-top: auto;
-    padding: 40px;
+    padding: 20px 40px 40px 40px;
+    align-items: center;
+}
+
+.footer-copyright {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px;
+    margin-left: auto;
 }
